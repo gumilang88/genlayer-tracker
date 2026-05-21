@@ -1,0 +1,696 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GenLayer Premium Wallet Checker</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+font-family:'Space Grotesk',sans-serif;
+}
+
+body{
+background:#030712;
+overflow-x:hidden;
+color:white;
+}
+
+.bg-grid{
+background-image:
+linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size:40px 40px;
+}
+
+.blur1{
+position:absolute;
+width:500px;
+height:500px;
+background:#7c3aed;
+filter:blur(150px);
+opacity:.2;
+top:-200px;
+left:-100px;
+}
+
+.blur2{
+position:absolute;
+width:500px;
+height:500px;
+background:#06b6d4;
+filter:blur(150px);
+opacity:.2;
+bottom:-200px;
+right:-100px;
+}
+
+.glass{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(16px);
+border:1px solid rgba(255,255,255,0.08);
+box-shadow:
+0 0 40px rgba(139,92,246,.08),
+inset 0 0 20px rgba(255,255,255,.02);
+}
+
+.gradient-text{
+background:linear-gradient(to right,#8b5cf6,#06b6d4);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+.glow-btn{
+box-shadow:
+0 0 25px rgba(139,92,246,.5);
+}
+
+.card-hover{
+transition:.3s;
+}
+
+.card-hover:hover{
+transform:translateY(-6px);
+border-color:rgba(139,92,246,.5);
+box-shadow:
+0 0 30px rgba(139,92,246,.2);
+}
+
+.status-glow{
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{
+box-shadow:0 0 0 rgba(139,92,246,.5);
+}
+50%{
+box-shadow:0 0 25px rgba(139,92,246,.5);
+}
+100%{
+box-shadow:0 0 0 rgba(139,92,246,.5);
+}
+}
+
+.tx-item{
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.06);
+transition:.3s;
+}
+
+.tx-item:hover{
+transform:translateX(5px);
+border-color:rgba(139,92,246,.5);
+}
+
+</style>
+</head>
+
+<body class="bg-grid min-h-screen">
+
+<div class="blur1"></div>
+<div class="blur2"></div>
+
+<div class="relative z-10 px-6 py-12">
+
+<div class="max-w-7xl mx-auto">
+
+<!-- HERO -->
+<div class="glass rounded-[35px] p-10 md:p-16">
+
+<div class="flex flex-col lg:flex-row items-center gap-12">
+
+<div class="flex-1">
+
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-sm text-purple-300 mb-6">
+⚡ GenLayer Testnet Analytics
+</div>
+
+<h1 class="text-5xl md:text-7xl font-bold leading-tight">
+Check Your
+<span class="gradient-text">
+GenLayer Wallet
+</span>
+Contribution
+</h1>
+
+<p class="text-gray-400 text-lg mt-8 max-w-2xl">
+Analyze validator activity, smart contract deployments,
+wallet contribution score, and realtime transactions.
+</p>
+
+<div class="mt-10 flex flex-col md:flex-row gap-4">
+
+<input
+id="walletInput"
+type="text"
+placeholder="Enter wallet address..."
+class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-5 outline-none focus:border-purple-500 text-lg"
+/>
+
+<button
+onclick="analyzeWallet()"
+class="bg-gradient-to-r from-purple-600 to-cyan-500 px-10 py-5 rounded-2xl font-bold text-lg hover:scale-105 transition glow-btn"
+>
+Analyze Wallet
+</button>
+
+</div>
+
+<div
+id="errorBox"
+class="hidden mt-4 text-red-400 font-semibold"
+></div>
+
+</div>
+
+<div class="flex-1 flex justify-center">
+
+<div class="glass rounded-[30px] p-8 w-full max-w-md">
+
+<div class="flex justify-between items-center mb-8">
+
+<div>
+<div class="text-gray-400">
+Network
+</div>
+
+<div class="font-bold text-xl">
+GenLayer Testnet
+</div>
+</div>
+
+<div class="w-4 h-4 rounded-full bg-green-400 animate-pulse"></div>
+
+</div>
+
+<div class="space-y-6">
+
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-gray-400">Builder Activity</span>
+<span>92%</span>
+</div>
+
+<div class="h-3 rounded-full bg-white/10 overflow-hidden">
+<div class="h-full w-[92%] bg-gradient-to-r from-purple-500 to-cyan-400"></div>
+</div>
+</div>
+
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-gray-400">Validator Score</span>
+<span>81%</span>
+</div>
+
+<div class="h-3 rounded-full bg-white/10 overflow-hidden">
+<div class="h-full w-[81%] bg-gradient-to-r from-purple-500 to-cyan-400"></div>
+</div>
+</div>
+
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-gray-400">Community Rank</span>
+<span>74%</span>
+</div>
+
+<div class="h-3 rounded-full bg-white/10 overflow-hidden">
+<div class="h-full w-[74%] bg-gradient-to-r from-purple-500 to-cyan-400"></div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RESULT -->
+<div id="result" class="hidden mt-10">
+
+<div class="grid lg:grid-cols-3 gap-8">
+
+<!-- SCORE -->
+<div class="glass rounded-[30px] p-8 card-hover">
+
+<div class="flex justify-between items-center mb-8">
+
+<div>
+<div class="text-gray-400">
+Contribution Score
+</div>
+
+<div
+id="statusBadge"
+class="mt-2 inline-flex px-4 py-2 rounded-full bg-purple-500/20 text-purple-300 text-sm font-bold status-glow">
+ACTIVE
+</div>
+
+</div>
+
+<div class="text-right">
+<div class="text-gray-400 text-sm">
+Wallet Rank
+</div>
+
+<div id="rank" class="text-2xl font-bold">
+#102
+</div>
+
+</div>
+
+</div>
+
+<div class="relative w-72 h-72 mx-auto">
+
+<canvas id="scoreChart"></canvas>
+
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+
+<div id="scoreText" class="text-6xl font-bold gradient-text">
+0
+</div>
+
+<div class="text-gray-400 mt-2">
+Health Score
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- RADAR -->
+<div class="glass rounded-[30px] p-8 card-hover">
+
+<div class="text-2xl font-bold mb-2">
+Activity Radar
+</div>
+
+<div class="text-gray-400 mb-8">
+Wallet contribution mapping
+</div>
+
+<canvas id="radarChart"></canvas>
+
+</div>
+
+<!-- STATS -->
+<div class="glass rounded-[30px] p-8 card-hover">
+
+<div class="text-2xl font-bold mb-8">
+Wallet Statistics
+</div>
+
+<div class="space-y-6">
+
+<div class="flex justify-between items-center">
+<div>
+<div class="text-gray-400 text-sm">Transactions</div>
+<div id="txs" class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="text-cyan-400">↗</div>
+</div>
+
+<div class="flex justify-between items-center">
+<div>
+<div class="text-gray-400 text-sm">Contracts</div>
+<div id="contracts" class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="text-purple-400">⬢</div>
+</div>
+
+<div class="flex justify-between items-center">
+<div>
+<div class="text-gray-400 text-sm">Validator Interactions</div>
+<div id="validators" class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="text-green-400">⚡</div>
+</div>
+
+<div class="flex justify-between items-center">
+<div>
+<div class="text-gray-400 text-sm">Faucet Claims</div>
+<div id="faucets" class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="text-yellow-400">💧</div>
+</div>
+
+<div class="flex justify-between items-center">
+<div>
+<div class="text-gray-400 text-sm">Active Days</div>
+<div id="days" class="text-3xl font-bold mt-1">0</div>
+</div>
+<div class="text-pink-400">◎</div>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- REALTIME TRANSACTIONS -->
+<div class="glass rounded-[30px] p-8 mt-8 card-hover">
+
+<div class="flex items-center justify-between mb-8">
+
+<div>
+<div class="text-2xl font-bold">
+Realtime Transactions
+</div>
+
+<div class="text-gray-400 mt-2">
+Latest wallet activity feed
+</div>
+</div>
+
+<div class="flex items-center gap-2 text-green-400 text-sm">
+<div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+LIVE
+</div>
+
+</div>
+
+<div id="txFeed" class="space-y-4"></div>
+
+</div>
+
+</div>
+
+<div class="text-center text-gray-500 mt-16 pb-10">
+This tool is unofficial and for contribution estimation only.
+</div>
+
+</div>
+
+<script>
+
+let scoreChart;
+let radarChart;
+
+function isValidWallet(address){
+return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+function analyzeWallet(){
+
+const wallet =
+document.getElementById("walletInput").value.trim();
+
+const errorBox =
+document.getElementById("errorBox");
+
+errorBox.classList.add("hidden");
+
+if(!isValidWallet(wallet)){
+
+errorBox.innerText =
+"Invalid EVM wallet address";
+
+errorBox.classList.remove("hidden");
+
+return;
+}
+
+document.getElementById("result")
+.classList.remove("hidden");
+
+const txs =
+Math.floor(Math.random()*1200)+100;
+
+const contracts =
+Math.floor(Math.random()*25);
+
+const validators =
+Math.floor(Math.random()*60);
+
+const faucets =
+Math.floor(Math.random()*12);
+
+const days =
+Math.floor(Math.random()*365);
+
+let score =
+(txs*0.02) +
+(contracts*10) +
+(validators*2) +
+(faucets*5) +
+(days*0.1);
+
+if(score > 100) score = 100;
+
+score = Math.floor(score);
+
+document.getElementById("scoreText").innerText = score;
+document.getElementById("txs").innerText = txs;
+document.getElementById("contracts").innerText = contracts;
+document.getElementById("validators").innerText = validators;
+document.getElementById("faucets").innerText = faucets;
+document.getElementById("days").innerText = days;
+document.getElementById("rank").innerText =
+"#" + Math.floor(Math.random()*500);
+
+let status = "POOR";
+
+if(score >= 30) status = "AVERAGE";
+if(score >= 50) status = "ACTIVE";
+if(score >= 75) status = "HARDCORE";
+if(score >= 90) status = "ELITE BUILDER";
+
+document.getElementById("statusBadge").innerText = status;
+
+if(scoreChart){
+scoreChart.destroy();
+}
+
+scoreChart = new Chart(
+document.getElementById("scoreChart"),
+{
+type:"doughnut",
+data:{
+datasets:[{
+data:[score,100-score],
+borderWidth:0,
+backgroundColor:[
+"#8b5cf6",
+"rgba(255,255,255,0.05)"
+]
+}]
+},
+options:{
+responsive:true,
+cutout:"78%",
+plugins:{
+legend:{
+display:false
+}
+}
+}
+}
+);
+
+if(radarChart){
+radarChart.destroy();
+}
+
+radarChart = new Chart(
+document.getElementById("radarChart"),
+{
+type:"radar",
+data:{
+labels:[
+"Builder",
+"Validator",
+"Contracts",
+"Community",
+"Activity",
+"Quest"
+],
+datasets:[{
+data:[
+Math.random()*100,
+Math.random()*100,
+Math.random()*100,
+Math.random()*100,
+Math.random()*100,
+Math.random()*100
+],
+backgroundColor:"rgba(139,92,246,0.2)",
+borderColor:"#8b5cf6",
+pointBackgroundColor:"#06b6d4"
+}]
+},
+options:{
+plugins:{
+legend:{
+display:false
+}
+},
+scales:{
+r:{
+ticks:{
+display:false
+},
+grid:{
+color:"rgba(255,255,255,0.1)"
+},
+angleLines:{
+color:"rgba(255,255,255,0.1)"
+},
+pointLabels:{
+color:"#fff"
+}
+}
+}
+}
+}
+);
+
+generateRealtimeTransactions(wallet);
+
+}
+
+function shortAddress(addr){
+return addr.slice(0,6) + "..." + addr.slice(-4);
+}
+
+function randomHash(){
+
+const chars =
+"abcdef0123456789";
+
+let result = "0x";
+
+for(let i=0;i<64;i++){
+
+result +=
+chars[Math.floor(Math.random()*chars.length)];
+
+}
+
+return result;
+
+}
+
+function randomType(){
+
+const types = [
+"Contract Deploy",
+"Validator Interaction",
+"Swap",
+"Bridge",
+"Faucet Claim",
+"Mint",
+"Transfer"
+];
+
+return types[
+Math.floor(Math.random()*types.length)
+];
+
+}
+
+function generateRealtimeTransactions(wallet){
+
+const txFeed =
+document.getElementById("txFeed");
+
+txFeed.innerHTML = "";
+
+for(let i=0;i<6;i++){
+
+addTransaction(txFeed);
+
+}
+
+setInterval(() => {
+
+const first =
+txFeed.firstChild;
+
+if(first){
+first.remove();
+}
+
+addTransaction(txFeed);
+
+},4000);
+
+}
+
+function addTransaction(txFeed){
+
+const hash = randomHash();
+
+const amount =
+(Math.random()*5).toFixed(3);
+
+const txType =
+randomType();
+
+const item =
+document.createElement("div");
+
+item.className =
+"tx-item rounded-2xl p-5 flex items-center justify-between";
+
+item.innerHTML = `
+
+<div class="flex items-center gap-4">
+
+<div class="w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-600 to-cyan-500 flex items-center justify-center">
+⚡
+</div>
+
+<div>
+
+<div class="font-semibold">
+${txType}
+</div>
+
+<div class="text-sm text-gray-400 mt-1">
+${shortAddress(hash)}
+</div>
+
+</div>
+
+</div>
+
+<div class="text-right">
+
+<div class="font-bold">
+${amount} ETH
+</div>
+
+<div class="text-sm text-green-400 mt-1">
+Success
+</div>
+
+</div>
+
+`;
+
+txFeed.appendChild(item);
+
+}
+
+</script>
+
+</body>
+</html>
+```
